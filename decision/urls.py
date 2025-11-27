@@ -3,11 +3,11 @@ from . import views
 
 app_name = 'tree'
 
-
 urlpatterns = [
     path('', views.index, name='index'),
     path('login/', views.user_login, name='login'),
     path('logout/', views.user_logout, name='logout'),
+    path('check-step1/', views.check_step1, name='check_step1'),  # Yangi
 
     # API endpoints
     path('api/stats/', views.api_stats, name='api_stats'),

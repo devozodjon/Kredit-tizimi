@@ -35,52 +35,115 @@ def qiymat_mos(kiritilgan, shart):
 def index(request):
     natija = None
 
-    if request.method == "POST" and 'daromad' in request.POST:
+    if request.method == "POST":
+        step = request.POST.get('step', '2')
+
+        # Agar 2-bosqich bo'lsa (barcha ma'lumotlar bilan)
+        if step == '2':
+            foydalanuvchi_qiymatlari = {
+                "Daromad": request.POST.get("daromad"),
+                "Yosh": request.POST.get("yosh"),
+                "Kredit tarixchasi": request.POST.get("kredit_tarixchasi"),
+                "Qarzlar": request.POST.get("qarzlar"),
+                "Kredit miqdori": request.POST.get("kredit_miqdori"),
+                "Garov": request.POST.get("garov"),
+                "Ish staji": request.POST.get("ish_staji")
+            }
+
+            rules = Rule.objects.all()
+            for rule in rules:
+                mos = True
+                for atribut_index, qiymat_key in rule.shartlar:
+                    atribut_value = AttributeValue.objects.get(key=qiymat_key)
+                    atribut_nomi = atribut_value.attribute.nomi
+
+                    if atribut_nomi not in foydalanuvchi_qiymatlari:
+                        mos = False
+                        break
+
+                    kiritilgan = foydalanuvchi_qiymatlari[atribut_nomi]
+                    if not qiymat_mos(kiritilgan, atribut_value.qiymat):
+                        mos = False
+                        break
+
+                if mos:
+                    natija = AttributeValue.objects.get(key=rule.natija).qiymat
+                    break
+
+            if not natija:
+                natija = "Mos qoida topilmadi"
+
+            Applicant.objects.create(
+                daromad=foydalanuvchi_qiymatlari["Daromad"],
+                yosh=foydalanuvchi_qiymatlari["Yosh"],
+                kredit_tarixchasi=foydalanuvchi_qiymatlari["Kredit tarixchasi"],
+                qarzlar=foydalanuvchi_qiymatlari.get("Qarzlar"),
+                kredit_miqdori=foydalanuvchi_qiymatlari["Kredit miqdori"],
+                garov=foydalanuvchi_qiymatlari.get("Garov"),
+                ish_staji=foydalanuvchi_qiymatlari.get("Ish staji"),
+                natija=natija
+            )
+
+    return render(request, "index.html", {"natija": natija})
+
+
+# -------------------------
+#  Bosqich 1 ni tekshirish (faqat 4 ta ma'lumot bilan)
+# -------------------------
+@csrf_exempt
+def check_step1(request):
+    if request.method == "POST":
         foydalanuvchi_qiymatlari = {
             "Daromad": request.POST.get("daromad"),
             "Yosh": request.POST.get("yosh"),
             "Kredit tarixchasi": request.POST.get("kredit_tarixchasi"),
-            "Qarzlar": request.POST.get("qarzlar"),
             "Kredit miqdori": request.POST.get("kredit_miqdori"),
-            "Garov": request.POST.get("garov"),
-            "Ish staji": request.POST.get("ish_staji")
         }
 
         rules = Rule.objects.all()
         for rule in rules:
             mos = True
+            # Faqat mavjud atributlar bilan tekshirish
             for atribut_index, qiymat_key in rule.shartlar:
-                atribut_value = AttributeValue.objects.get(key=qiymat_key)
-                atribut_nomi = atribut_value.attribute.nomi
+                try:
+                    atribut_value = AttributeValue.objects.get(key=qiymat_key)
+                    atribut_nomi = atribut_value.attribute.nomi
 
-                if atribut_nomi not in foydalanuvchi_qiymatlari:
-                    mos = False
-                    break
+                    if atribut_nomi not in foydalanuvchi_qiymatlari:
+                        # Bu atribut yo'q, bu qoida mos kelmaydi
+                        mos = False
+                        break
 
-                kiritilgan = foydalanuvchi_qiymatlari[atribut_nomi]
-                if not qiymat_mos(kiritilgan, atribut_value.qiymat):
+                    kiritilgan = foydalanuvchi_qiymatlari[atribut_nomi]
+                    if not qiymat_mos(kiritilgan, atribut_value.qiymat):
+                        mos = False
+                        break
+                except AttributeValue.DoesNotExist:
                     mos = False
                     break
 
             if mos:
+                # Mos qoida topildi!
                 natija = AttributeValue.objects.get(key=rule.natija).qiymat
-                break
 
-        if not natija:
-            natija = "Mos qoida topilmadi"
+                # Bazaga saqlash (qolgan ma'lumotlar NULL)
+                Applicant.objects.create(
+                    daromad=foydalanuvchi_qiymatlari["Daromad"],
+                    yosh=foydalanuvchi_qiymatlari["Yosh"],
+                    kredit_tarixchasi=foydalanuvchi_qiymatlari["Kredit tarixchasi"],
+                    kredit_miqdori=foydalanuvchi_qiymatlari["Kredit miqdori"],
+                    qarzlar=None,
+                    garov=None,
+                    ish_staji=None,
+                    natija=natija
+                )
 
-        Applicant.objects.create(
-            daromad=foydalanuvchi_qiymatlari["Daromad"],
-            yosh=foydalanuvchi_qiymatlari["Yosh"],
-            kredit_tarixchasi=foydalanuvchi_qiymatlari["Kredit tarixchasi"],
-            qarzlar=foydalanuvchi_qiymatlari["Qarzlar"],
-            kredit_miqdori=foydalanuvchi_qiymatlari["Kredit miqdori"],
-            garov=foydalanuvchi_qiymatlari["Garov"],
-            ish_staji=foydalanuvchi_qiymatlari["Ish staji"],
-            natija=natija
-        )
+                return JsonResponse({"found": True, "natija": natija})
 
-    return render(request, "index.html", {"natija": natija})
+        # Mos qoida topilmadi
+        return JsonResponse({"found": False})
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
 
 
 # -------------------------

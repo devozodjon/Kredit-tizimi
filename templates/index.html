@@ -103,30 +103,41 @@
     </div>
 </div>
 
-<!-- Oddiy user: Kredit formasi -->
+<!-- Oddiy user: Kredit formasi - Bosqich 1 (4 ta asosiy savol) -->
 <div id="userPage" class="page">
     <div class="container">
         <div class="main-card">
             <div class="card-header-custom">
                 <div class="header-icon">💳</div>
                 <h2>Kredit Qaror Tizimi</h2>
-                <p>Ma'lumotlaringizni kiriting va natijani oling</p>
+                <p>Asosiy ma'lumotlaringizni kiriting</p>
             </div>
             <div class="card-body-custom">
                 <div id="userResult" style="display:none;"></div>
-                <form method="post" action="">
+
+                <!-- Bosqich indikatori -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-primary">Bosqich 1/2</span>
+                        <small class="text-muted">Asosiy ma'lumotlar</small>
+                    </div>
+                </div>
+
+                <form id="step1Form" onsubmit="checkStep1(event)">
                     {% csrf_token %}
+                    <input type="hidden" id="step" name="step" value="1">
+
                     <div class="mb-4">
                         <label class="form-label">💰 Daromad (so'm)</label>
-                        <input type="number" class="form-control" name="daromad" placeholder="Masalan: 15000" required>
+                        <input type="number" class="form-control" id="daromad" name="daromad" placeholder="Masalan: 15000" required>
                     </div>
                     <div class="mb-4">
                         <label class="form-label">👤 Yosh</label>
-                        <input type="number" class="form-control" name="yosh" placeholder="Masalan: 30" required>
+                        <input type="number" class="form-control" id="yosh" name="yosh" placeholder="Masalan: 30" required>
                     </div>
                     <div class="mb-4">
                         <label class="form-label">📊 Kredit tarixchasi</label>
-                        <select class="form-select" name="kredit_tarixchasi" required>
+                        <select class="form-select" id="kredit_tarixchasi" name="kredit_tarixchasi" required>
                             <option value="" disabled selected>Tanlang</option>
                             <option value="Yaxshi">Yaxshi</option>
                             <option value="O'rtacha">O'rtacha</option>
@@ -134,12 +145,66 @@
                         </select>
                     </div>
                     <div class="mb-4">
+                        <label class="form-label">💵 Talab qilinadigan kredit miqdori (so'm)</label>
+                        <input type="number" class="form-control" id="kredit_miqdori" name="kredit_miqdori" placeholder="Masalan: 25000" required>
+                    </div>
+
+                    <div id="loadingStep1" style="display:none;" class="text-center mb-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Yuklanmoqda...</span>
+                        </div>
+                        <p class="mt-2">Qoidalar tekshirilmoqda...</p>
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn-custom btn-primary">➡️ Davom etish</button>
+                    </div>
+                    <div class="d-grid">
+                        <button type="button" class="btn-custom btn-secondary" onclick="showPage('homePage')">⬅ Bosh sahifaga</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Oddiy user: Kredit formasi - Bosqich 2 (Qo'shimcha 3 ta savol) -->
+<div id="userPageStep2" class="page">
+    <div class="container">
+        <div class="main-card">
+            <div class="card-header-custom">
+                <div class="header-icon">💳</div>
+                <h2>Kredit Qaror Tizimi</h2>
+                <p>Qo'shimcha ma'lumotlar kerak</p>
+            </div>
+            <div class="card-body-custom">
+                <div id="step2Result" style="display:none;"></div>
+
+                <div class="alert alert-info mb-4" id="step2Alert">
+                    <strong>ℹ️ Diqqat!</strong> Qaror qabul qilish uchun qo'shimcha ma'lumotlar kerak.
+                </div>
+
+                <!-- Bosqich indikatori -->
+                <div class="mb-4" id="step2Indicator">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-success">Bosqich 2/2</span>
+                        <small class="text-muted">Qo'shimcha ma'lumotlar</small>
+                    </div>
+                </div>
+
+                <form method="post" action="" id="step2Form">
+                    {% csrf_token %}
+                    <input type="hidden" name="step" value="2">
+
+                    <!-- Avvalgi ma'lumotlarni saqlab qolish -->
+                    <input type="hidden" id="daromad2" name="daromad">
+                    <input type="hidden" id="yosh2" name="yosh">
+                    <input type="hidden" id="kredit_tarixchasi2" name="kredit_tarixchasi">
+                    <input type="hidden" id="kredit_miqdori2" name="kredit_miqdori">
+
+                    <div class="mb-4">
                         <label class="form-label">💸 Mavjud qarzlar (so'm)</label>
                         <input type="number" class="form-control" name="qarzlar" placeholder="Masalan: 1500" required>
-                    </div>
-                    <div class="mb-4">
-                        <label class="form-label">💵 Talab qilinadigan kredit miqdori (so'm)</label>
-                        <input type="number" class="form-control" name="kredit_miqdori" placeholder="Masalan: 25000" required>
                     </div>
                     <div class="mb-4">
                         <label class="form-label">🏠 Garov mavjudmi?</label>
@@ -153,11 +218,12 @@
                         <label class="form-label">💼 Ish staji (yil)</label>
                         <input type="number" class="form-control" name="ish_staji" placeholder="Masalan: 5" required>
                     </div>
+
                     <div class="d-grid mb-3">
                         <button type="submit" class="btn-custom btn-primary">✅ Natijani Tekshirish</button>
                     </div>
                     <div class="d-grid">
-                        <button type="button" class="btn-custom btn-secondary" onclick="showPage('homePage')">⬅ Bosh sahifaga</button>
+                        <button type="button" class="btn-custom btn-secondary" onclick="showPage('userPage')">⬅ Ortga</button>
                     </div>
                 </form>
             </div>
@@ -225,10 +291,110 @@
 
 <script>
 let currentUser = null;
+let step1Data = {}; // Bosqich 1 ma'lumotlarini saqlash
 
 function showPage(pageId) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById(pageId).classList.add('active');
+}
+
+// Bosqich 1 ni tekshirish
+async function checkStep1(e) {
+    e.preventDefault();
+
+    // Loading ko'rsatish
+    document.getElementById('loadingStep1').style.display = 'block';
+
+    // Ma'lumotlarni yig'ish
+    step1Data = {
+        daromad: document.getElementById('daromad').value,
+        yosh: document.getElementById('yosh').value,
+        kredit_tarixchasi: document.getElementById('kredit_tarixchasi').value,
+        kredit_miqdori: document.getElementById('kredit_miqdori').value
+    };
+
+    try {
+        // Serverni tekshirish
+        const formData = new FormData();
+        formData.append('step', '1');
+        formData.append('daromad', step1Data.daromad);
+        formData.append('yosh', step1Data.yosh);
+        formData.append('kredit_tarixchasi', step1Data.kredit_tarixchasi);
+        formData.append('kredit_miqdori', step1Data.kredit_miqdori);
+
+        // CSRF token qo'shish
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        const response = await fetch('/check-step1/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+            },
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error('Server xatosi');
+        }
+
+        const data = await response.json();
+
+        document.getElementById('loadingStep1').style.display = 'none';
+
+        if (data.found) {
+            // Natija topildi - ko'rsatish
+            showResultInStep1(data.natija);
+        } else {
+            // Natija topilmadi - 2-bosqichga o'tish
+            moveToStep2();
+        }
+    } catch (error) {
+        document.getElementById('loadingStep1').style.display = 'none';
+        console.error('Xatolik:', error);
+        alert('Xatolik yuz berdi: ' + error.message + '\n\nQaytadan urinib ko\'ring yoki 2-bosqichga o\'ting.');
+        // Xatolik bo'lsa ham 2-bosqichga o'tish imkoniyati
+        moveToStep2();
+    }
+}
+
+// Natijani 1-bosqichda ko'rsatish
+function showResultInStep1(natija) {
+    const resultDiv = document.getElementById('userResult');
+
+    const isPositive = natija.toLowerCase().includes('beriladi') ||
+                       natija.toLowerCase().includes('tasdiqlandi') ||
+                       natija.toLowerCase().includes('qabul') ||
+                       natija.toLowerCase().includes('ruxsat');
+
+    const resultClass = isPositive ? 'result-success' : 'result-danger';
+    const icon = isPositive ? '✅' : '❌';
+
+    resultDiv.innerHTML = `
+        <div class="result-card ${resultClass}">
+            <div style="font-size: 48px; margin-bottom: 15px;">${icon}</div>
+            <h3 class="fw-bold mb-2">Natija</h3>
+            <p class="mb-0 fs-5">${natija}</p>
+        </div>
+        <div class="d-grid mt-3">
+            <button type="button" class="btn-custom btn-secondary" onclick="goToHome()">🏠 Bosh sahifaga qaytish</button>
+        </div>
+    `;
+    resultDiv.style.display = 'block';
+
+    // Formani yashirish
+    document.getElementById('step1Form').style.display = 'none';
+}
+
+// 2-bosqichga o'tish
+function moveToStep2() {
+    // Avvalgi ma'lumotlarni 2-bosqichga o'tkazish
+    document.getElementById('daromad2').value = step1Data.daromad;
+    document.getElementById('yosh2').value = step1Data.yosh;
+    document.getElementById('kredit_tarixchasi2').value = step1Data.kredit_tarixchasi;
+    document.getElementById('kredit_miqdori2').value = step1Data.kredit_miqdori;
+
+    // 2-bosqichni ko'rsatish
+    showPage('userPageStep2');
 }
 
 // Login funksiyasi
@@ -403,10 +569,10 @@ async function loadApplicants() {
                 <td>${item.daromad}</td>
                 <td>${item.yosh}</td>
                 <td>${item.kredit_tarixchasi}</td>
-                <td>${item.qarzlar}</td>
+                <td>${item.qarzlar || '-'}</td>
                 <td>${item.kredit_miqdori}</td>
-                <td>${item.garov}</td>
-                <td>${item.ish_staji}</td>
+                <td>${item.garov || '-'}</td>
+                <td>${item.ish_staji || '-'}</td>
                 <td><strong>${item.natija}</strong></td>
                 <td><button class="btn-sm btn-delete" onclick="deleteApplicant(${item.id})">🗑️</button></td>
             </tr>`;
@@ -448,34 +614,76 @@ async function deleteApplicant(id) {
     }
 }
 
-// Natijani ko'rsatish (agar POST orqali yuborilgan bo'lsa)
+// Natijani ko'rsatish (agar POST orqali yuborilgan bo'lsa - 2-bosqichdan)
 {% if natija %}
 window.onload = function() {
-    showPage('userPage');
-    const resultDiv = document.getElementById('userResult');
-    const natija = '{{ natija }}';
+    const step = '{{ request.POST.step }}';
 
-    // Ijobiy natijalarni aniqlash
-    const isPositive = natija.toLowerCase().includes('beriladi') ||
-                       natija.toLowerCase().includes('tasdiqlandi') ||
-                       natija.toLowerCase().includes('qabul') ||
-                       natija.toLowerCase().includes('ruxsat');
+    if (step === '2') {
+        // 2-bosqichda natija
+        showPage('userPageStep2');
+        const resultDiv = document.getElementById('step2Result');
+        const natija = '{{ natija }}';
 
-    const resultClass = isPositive ? 'result-success' : 'result-danger';
-    const icon = isPositive ? '✅' : '❌';
+        const isPositive = natija.toLowerCase().includes('beriladi') ||
+                           natija.toLowerCase().includes('tasdiqlandi') ||
+                           natija.toLowerCase().includes('qabul') ||
+                           natija.toLowerCase().includes('ruxsat');
 
-    resultDiv.innerHTML = `
-        <div class="result-card ${resultClass}">
-            <div style="font-size: 48px; margin-bottom: 15px;">
-                ${icon}
+        const resultClass = isPositive ? 'result-success' : 'result-danger';
+        const icon = isPositive ? '✅' : '❌';
+
+        resultDiv.innerHTML = `
+            <div class="result-card ${resultClass}">
+                <div style="font-size: 48px; margin-bottom: 15px;">${icon}</div>
+                <h3 class="fw-bold mb-2">Natija</h3>
+                <p class="mb-0 fs-5">${natija}</p>
             </div>
-            <h3 class="fw-bold mb-2">Natija</h3>
-            <p class="mb-0 fs-5">${natija}</p>
-        </div>
-    `;
-    resultDiv.style.display = 'block';
+            <div class="d-grid mt-3">
+                <button type="button" class="btn-custom btn-secondary" onclick="goToHome()">🏠 Bosh sahifaga qaytish</button>
+            </div>
+        `;
+        resultDiv.style.display = 'block';
+
+        // Formani va alert'ni yashirish
+        document.getElementById('step2Form').style.display = 'none';
+        document.getElementById('step2Alert').style.display = 'none';
+        document.getElementById('step2Indicator').style.display = 'none';
+    } else {
+        // 1-bosqichda natija
+        showPage('userPage');
+        const resultDiv = document.getElementById('userResult');
+        const natija = '{{ natija }}';
+
+        const isPositive = natija.toLowerCase().includes('beriladi') ||
+                           natija.toLowerCase().includes('tasdiqlandi') ||
+                           natija.toLowerCase().includes('qabul') ||
+                           natija.toLowerCase().includes('ruxsat');
+
+        const resultClass = isPositive ? 'result-success' : 'result-danger';
+        const icon = isPositive ? '✅' : '❌';
+
+        resultDiv.innerHTML = `
+            <div class="result-card ${resultClass}">
+                <div style="font-size: 48px; margin-bottom: 15px;">${icon}</div>
+                <h3 class="fw-bold mb-2">Natija</h3>
+                <p class="mb-0 fs-5">${natija}</p>
+            </div>
+            <div class="d-grid mt-3">
+                <button type="button" class="btn-custom btn-secondary" onclick="goToHome()">🏠 Bosh sahifaga qaytish</button>
+            </div>
+        `;
+        resultDiv.style.display = 'block';
+        document.getElementById('step1Form').style.display = 'none';
+    }
 }
 {% endif %}
+
+// Bosh sahifaga qaytish funksiyasi
+function goToHome() {
+    // Sahifani qayta yuklash (formalarni tozalash uchun)
+    window.location.href = '/';
+}
 </script>
 
 </body>
