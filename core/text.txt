@@ -1,0 +1,39 @@
+Agar mijozning qarzlari 10000 dan katta va kredit miqdori 20000 dan katta bo‘lsa, natija  u holda natija  kredit berilmaydi..
+Agar mijozning ish staji 3 yildan katta yoki teng va daromadi 7000 dan katta yoki teng bo‘lsa, u holda natija  kredit beriladi..
+Agar mijozning daromadi 3000 dan kam va yoshi 20 yoshdan kichik bo‘lsa, natija  u holda natija  kredit berilmaydi..
+Agar mijozning ish staji 5 yildan kam va daromadi 10000 dan katta bo‘lsa, u holda qo‘yiladigan talab qo‘shimcha tekshiruv kerak.
+Agar qo‘yilgan talab  qo‘shimcha tekshiruv kerak bo‘lsa va kredit miqdori 20000 dan kam hamda garov bor bo‘lsa, u holda natija  kredit beriladi..
+Agar qo‘yilgan talab  qo‘shimcha tekshiruv kerak bo‘lsa va qarzlar 9000 dan katta hamda garov yo‘q bo‘lsa, natija  u holda natija  kredit berilmaydi..
+
+
+Agar mijozning daromadi 10 mingdan yuqori va kredit tarixchasi yaxshi bo‘lsa, u holda natija  kredit beriladi..
+Agar mijozning garovi bor va ish staji 5 yildan katta yoki teng bo‘lsa, u holda natija  kredit beriladi..
+Agar mijozning yoshi 25 yoshdan kichik va kredit miqdori 5000 dan kam bo‘lsa, u holda qo'yiladigan talab  qo‘shimcha tekshiruv kerak.
+Agar qo'yilgan talab  qo‘shimcha tekshiruv kerak bo‘lsa va garov bor hamda qarzlar 1000 dan kam bo‘lsa, u holda natija  kredit beriladi..
+Agar qo'yilgan talab  qo‘shimcha tekshiruv kerak bo‘lsa va garov yo‘q bo‘lsa, natija  u holda natija  kredit berilmaydi...
+
+
+Agar mijozning daromadi 7000 dan yuqori va qarzlari 2000 dan kam bo‘lsa, u holda natija  kredit beriladi..
+Agar mijozning kredit tarixchasi o‘rtacha va kredit miqdori 5000 dan katta bo‘lsa, u holda qo‘yiladigan talab  qo‘shimcha tekshiruv kerak.
+Agar qo‘yilgan talab  qo‘shimcha tekshiruv kerak bo‘lsa va garov bor hamda daromad 10000 dan katta bo‘lsa, u holda natija  kredit beriladi..
+Agar qo‘yilgan talab  qo‘shimcha tekshiruv kerak bo‘lsa va garov yo‘q hamda qarzlar 5000 dan katta bo‘lsa, natija  u holda natija  kredit berilmaydi..
+
+
+Agar mijozning daromadi 5000 dan kam va yoshi 30 dan katta yoki teng bo‘lsa, u holda qo‘yiladigan talab  garov talab qilinadi.
+Agar mijozning garovi yo‘q va qarzlari 3000 dan katta bo‘lsa, natija  u holda natija  kredit berilmaydi..
+Agar mijozning kredit miqdori 10000 dan katta yoki teng va garovi bor bo‘lsa, u holda kredit miqdori oshiriladi.
+Agar mijozning yoshi 40 dan katta yoki teng va ish staji 10 yildan kam yoki teng bo‘lsa, u holda qo‘yiladigan talab  qo‘shimcha tekshiruv kerak.
+Agar qo‘yilgan talab  qo‘shimcha tekshiruv kerak bo‘lsa va kredit miqdori 20000 dan kam hamda daromad 10000 dan katta bo‘lsa, u holda natija  kredit beriladi..
+Agar qo‘yilgan talab  qo‘shimcha tekshiruv kerak bo‘lsa va garov yo‘q hamda qarzlar 10000 dan katta bo‘lsa, natija  u holda natija  kredit berilmaydi..
+
+
+Agar mijozning daromadi 8000 dan katta yoki teng va kredit miqdori 10000 dan kichik yoki teng bo‘lsa, u holda qo‘yiladigan talab  qisman ko‘rib chiqiladi.
+Agar mijozning qarzlari 2000 dan kam va kredit tarixchasi o‘rtacha bo‘lsa, u holda qo‘yiladigan talab  qo‘shimcha tekshiruv kerak.
+Agar qo‘yilgan talab  qo‘shimcha tekshiruv kerak bo‘lsa va garov bor hamda daromad 10000 dan katta bo‘lsa, u holda natija  kredit beriladi..
+Agar qo‘yilgan talab  qo‘shimcha tekshiruv kerak bo‘lsa va garov yo‘q hamda kredit miqdori 20000 dan katta bo‘lsa, natija  u holda natija  kredit berilmaydi..
+
+
+Agar mijozning daromadi 2000 dan kam va kredit tarixchasi yomon yoki o‘rtacha bo‘lsa, natija  u holda natija  kredit berilmaydi..
+Agar mijozning ish staji 10 yildan katta yoki teng, qarzlari 5000 dan kam va daromadi 10000 dan katta bo‘lsa, u holda qo‘yiladigan talab  qo‘shimcha tekshiruv kerak.
+Agar qo‘yilgan talab  qo‘shimcha tekshiruv kerak bo‘lsa va kredit miqdori 20000 dan kam hamda garov bor bo‘lsa, u holda natija  kredit beriladi..
+Agar qo‘yilgan talab  qo‘shimcha tekshiruv kerak bo‘lsa va kredit tarixchasi o‘rtacha hamda garov yo‘q bo‘lsa, natija  u holda natija  kredit berilmaydi..
