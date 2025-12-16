@@ -84,7 +84,6 @@
             <div class="card-body-custom">
                 <div id="loginError" class="alert alert-danger" style="display:none;"></div>
                 <form onsubmit="handleLogin(event)">
-                    {% csrf_token %}
                     <div class="mb-4">
                         <label class="form-label">👤 Username</label>
                         <input type="text" class="form-control" id="username" required>
@@ -264,7 +263,13 @@ function loadNextQuestion() {
     }
 
     currentRule = rules[currentRuleIndex];
-    const conditions = currentRule.shartlar;
+    let conditions = currentRule.shartlar;
+
+    // Natija atributini (ID 9) filter qilish - faqat shartlarni so'rash
+    conditions = conditions.filter(([attrIndex, valueKey]) => {
+        const attr = attributes[attrIndex];
+        return attr && attr.nomi !== 'Natija';
+    });
 
     if (currentQuestionIndex >= conditions.length) {
         checkCurrentRule();
@@ -276,7 +281,7 @@ function loadNextQuestion() {
 
     const progress = ((currentQuestionIndex + 1) / conditions.length) * 100;
     document.getElementById('progressBar').style.width = progress + '%';
-    document.getElementById('questionProgress').textContent = `Qoida ${currentRuleIndex + 1} - Savol ${currentQuestionIndex + 1}/${conditions.length}`;
+    document.getElementById('questionProgress').textContent = `Savol ${currentQuestionIndex + 1}/${conditions.length}`;
 
     const questionHTML = createQuestion(attribute, attrIndex);
     document.getElementById('questionContent').innerHTML = questionHTML;
@@ -293,11 +298,11 @@ function createQuestion(attribute, attrIndex) {
                     <option value="" disabled selected>Tanlang</option>`;
         if (attribute.nomi === 'Kredit tarixchasi') {
             html += `<option value="Yaxshi">Yaxshi</option>
-                     <option value="O\'rtacha">O'rtacha</option>
+                     <option value="O'rtacha">O'rtacha</option>
                      <option value="Yomon">Yomon</option>`;
         } else if (attribute.nomi === 'Garov') {
             html += `<option value="Bor">Bor</option>
-                     <option value="Yo\'q">Yo'q</option>`;
+                     <option value="Yo'q">Yo'q</option>`;
         }
         html += `</select>`;
     } else {
@@ -327,7 +332,14 @@ function submitAnswer(attrIndex) {
 
 // Hozirgi qoidani tekshirish
 function checkCurrentRule() {
-    const conditions = currentRule.shartlar;
+    let conditions = currentRule.shartlar;
+
+    // Natija atributini filter qilish
+    conditions = conditions.filter(([attrIndex, valueKey]) => {
+        const attr = attributes[attrIndex];
+        return attr && attr.nomi !== 'Natija';
+    });
+
     let allMatch = true;
 
     for (let i = 0; i < conditions.length; i++) {
@@ -341,10 +353,12 @@ function checkCurrentRule() {
     }
 
     if (allMatch) {
+        // Natija key'ni olish va uning qiymatini chiqarish
         const resultKey = currentRule.natija;
         const result = attributeValues[resultKey].qiymat;
         saveAndShowResult(result);
     } else {
+        // Keyingi qoidaga o'tish
         currentRuleIndex++;
         currentQuestionIndex = 0;
         userAnswers = {};
@@ -371,14 +385,14 @@ function qiymatMos(kiritilgan, shart) {
 async function saveAndShowResult(result) {
     try {
         const formData = new FormData();
-        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
         Object.keys(userAnswers).forEach(key => {
             const attrName = attributes[key].nomi;
             formData.append(attrName, userAnswers[key]);
         });
         formData.append('natija', result);
 
-        await fetch('/save-application/', { method: 'POST', body: formData });
+        // Opsional: backend-ga ma'lumot saqlash
+        // await fetch('/save-application/', { method: 'POST', body: formData });
         showFinalResult(result);
     } catch (error) {
         console.error('Xatolik:', error);
@@ -391,7 +405,8 @@ function showFinalResult(result) {
     const isPositive = result.toLowerCase().includes('beriladi') ||
                        result.toLowerCase().includes('tasdiqlandi') ||
                        result.toLowerCase().includes('qabul') ||
-                       result.toLowerCase().includes('ruxsat');
+                       result.toLowerCase().includes('ruxsat') ||
+                       result.toLowerCase().includes('oshiriladi');
 
     const resultClass = isPositive ? 'result-success' : 'result-danger';
     const icon = isPositive ? '✅' : '❌';
@@ -421,7 +436,8 @@ function getIcon(attributeName) {
         'Qarzlar': '💸',
         'Kredit miqdori': '💵',
         'Garov': '🏠',
-        'Ish staji': '💼'
+        'Ish staji': '💼',
+        'Qo\'yilgan talab': '📋'
     };
     return icons[attributeName] || '📋';
 }
@@ -447,19 +463,26 @@ async function handleLogin(e) {
         const formData = new FormData();
         formData.append('username', username);
         formData.append('password', password);
-        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
 
         const response = await fetch('/login/', { method: 'POST', body: formData });
 
         if (response.ok) {
-            showPage('adminPage');
-            loadStats();
+            const data = await response.json();
+            if (data.success) {
+                showPage('adminPage');
+                loadStats();
+            } else {
+                const loginError = document.getElementById('loginError');
+                loginError.textContent = 'Login yoki parol noto\'g\'ri!';
+                loginError.style.display = 'block';
+            }
         } else {
             const loginError = document.getElementById('loginError');
             loginError.textContent = 'Login yoki parol noto\'g\'ri!';
             loginError.style.display = 'block';
         }
     } catch (error) {
+        console.error('Xatolik:', error);
         const loginError = document.getElementById('loginError');
         loginError.textContent = 'Xatolik yuz berdi!';
         loginError.style.display = 'block';
@@ -604,3 +627,5 @@ async function deleteApplicant(id) {
     }
 }
 </script>
+</body>
+</html>

@@ -170,13 +170,10 @@ def user_logout(request):
 
 
 # -------------------------
-#  API endpoints (faqat superuser uchun)
+#  API endpoints - CSRF_EXEMPT qo'shildi
 # -------------------------
-@login_required
+@csrf_exempt
 def api_stats(request):
-    if not request.user.is_superuser:
-        return JsonResponse({"error": "Unauthorized"}, status=401)
-
     return JsonResponse({
         "applicants": Applicant.objects.count(),
         "rules": Rule.objects.count(),
@@ -185,20 +182,14 @@ def api_stats(request):
     })
 
 
-@login_required
+@csrf_exempt
 def api_attributes(request):
-    if not request.user.is_superuser:
-        return JsonResponse({"error": "Unauthorized"}, status=401)
-
     attributes = list(Attribute.objects.values('id', 'nomi'))
     return JsonResponse(attributes, safe=False)
 
 
-@login_required
+@csrf_exempt
 def api_attribute_values(request):
-    if not request.user.is_superuser:
-        return JsonResponse({"error": "Unauthorized"}, status=401)
-
     values = AttributeValue.objects.select_related('attribute').all()
     data = [{
         'id': v.id,
@@ -209,18 +200,15 @@ def api_attribute_values(request):
     return JsonResponse(data, safe=False)
 
 
-@login_required
+@csrf_exempt
 def api_rules(request):
-    if not request.user.is_superuser:
-        return JsonResponse({"error": "Unauthorized"}, status=401)
-
     rules = list(Rule.objects.values('id', 'shartlar', 'natija'))
     return JsonResponse(rules, safe=False)
 
 
-@login_required
+@csrf_exempt
 def api_applicants(request):
-    if not request.user.is_superuser:
+    if not request.user.is_authenticated or not request.user.is_superuser:
         return JsonResponse({"error": "Unauthorized"}, status=401)
 
     applicants = list(Applicant.objects.values(
@@ -231,12 +219,11 @@ def api_applicants(request):
 
 
 # -------------------------
-#  Delete endpoints
+#  Delete endpoints - CSRF_EXEMPT qo'shildi
 # -------------------------
-@login_required
 @csrf_exempt
 def api_attribute_delete(request, pk):
-    if not request.user.is_superuser:
+    if not request.user.is_authenticated or not request.user.is_superuser:
         return JsonResponse({"error": "Unauthorized"}, status=401)
 
     if request.method == "POST":
@@ -247,10 +234,9 @@ def api_attribute_delete(request, pk):
     return JsonResponse({"error": "Invalid method"}, status=400)
 
 
-@login_required
 @csrf_exempt
 def api_attribute_value_delete(request, pk):
-    if not request.user.is_superuser:
+    if not request.user.is_authenticated or not request.user.is_superuser:
         return JsonResponse({"error": "Unauthorized"}, status=401)
 
     if request.method == "POST":
@@ -261,10 +247,9 @@ def api_attribute_value_delete(request, pk):
     return JsonResponse({"error": "Invalid method"}, status=400)
 
 
-@login_required
 @csrf_exempt
 def api_rule_delete(request, pk):
-    if not request.user.is_superuser:
+    if not request.user.is_authenticated or not request.user.is_superuser:
         return JsonResponse({"error": "Unauthorized"}, status=401)
 
     if request.method == "POST":
@@ -275,10 +260,9 @@ def api_rule_delete(request, pk):
     return JsonResponse({"error": "Invalid method"}, status=400)
 
 
-@login_required
 @csrf_exempt
 def api_applicant_delete(request, pk):
-    if not request.user.is_superuser:
+    if not request.user.is_authenticated or not request.user.is_superuser:
         return JsonResponse({"error": "Unauthorized"}, status=401)
 
     if request.method == "POST":
