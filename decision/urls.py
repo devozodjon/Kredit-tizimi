@@ -1,24 +1,14 @@
 from django.urls import path
 from . import views
 
-app_name = 'tree'
+app_name = 'decision'
 
 urlpatterns = [
-    path('', views.index, name='index'),
-    path('login/', views.user_login, name='login'),
-    path('logout/', views.user_logout, name='logout'),
-    path('check-step1/', views.check_step1, name='check_step1'),
-
-    # API endpoints
-    path('api/stats/', views.api_stats, name='api_stats'),
-    path('api/attributes/', views.api_attributes, name='api_attributes'),
-    path('api/attribute-values/', views.api_attribute_values, name='api_attribute_values'),
-    path('api/rules/', views.api_rules, name='api_rules'),
-    path('api/applicants/', views.api_applicants, name='api_applicants'),
-
-    # Delete endpoints
-    path('api/attributes/<int:pk>/delete/', views.api_attribute_delete, name='api_attribute_delete'),
-    path('api/attribute-values/<int:pk>/delete/', views.api_attribute_value_delete, name='api_attribute_value_delete'),
-    path('api/rules/<int:pk>/delete/', views.api_rule_delete, name='api_rule_delete'),
-    path('api/applicants/<int:pk>/delete/', views.api_applicant_delete, name='api_applicant_delete'),
+    path('', views.user_form, name='user_form'),
+    path('api/find-rule/', views.find_matching_rule, name='find_rule'),
+    path('api/check-chain/', views.check_chain_rule, name='check_chain'),  # YANGI
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
+    path('admin-panel/', views.admin_panel, name='admin_panel'),
+    path('reset/', views.reset_form, name='reset'),
 ]
