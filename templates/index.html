@@ -1,9 +1,10 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kredit Qaror Tizimi</title>
+    <title>{% if page == 'admin_panel' %}Admin Panel{% elif page == 'admin_login' %}Admin Login{% else %}Kredit Qaror Tizimi{% endif %}</title>
     <style>
         * {
             margin: 0;
@@ -15,12 +16,13 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
         }
 
-        .container {
+        /* ========== USER INTERFACE STYLES ========== */
+        .user-container {
             max-width: 1000px;
             margin: 0 auto;
+            padding: 20px;
         }
 
         .header {
@@ -94,6 +96,16 @@
             color: white;
         }
 
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
         .info-box {
             background: #e7f3ff;
             color: #004085;
@@ -132,7 +144,8 @@
         }
 
         .form-group input,
-        .form-group select {
+        .form-group select,
+        .form-group textarea {
             padding: 12px 15px;
             border: 2px solid #e2e8f0;
             border-radius: 8px;
@@ -142,7 +155,8 @@
         }
 
         .form-group input:focus,
-        .form-group select:focus {
+        .form-group select:focus,
+        .form-group textarea:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
@@ -205,316 +219,887 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* ========== ADMIN PANEL STYLES ========== */
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            padding: 20px 0;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .sidebar-header h2 {
+            color: #667eea;
+            font-size: 1.5em;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .logout-btn {
+            margin: 20px;
+            padding: 12px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: calc(100% - 40px);
+            font-weight: bold;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px;
+        }
+
+        .content-header {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .content-header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .content-body {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .data-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-buttons button {
+            padding: 8px 12px;
+            font-size: 0.9em;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #667eea;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .condition-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .condition-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #dc3545;
+        }
+
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🏦 Kredit Qaror Tizimi</h1>
-            <p>Qarorlar daraxtiga asoslangan tahlil</p>
-        </div>
 
-        <!-- WELCOME PAGE -->
-        <div id="welcomePage" class="card active">
-            <div class="welcome-box">
-                <h2>Xush kelibsiz! 👋</h2>
-                <p>Kredit arizasi ma'lumotlarini to'ldiring va avtomatik ravishda natija oling.</p>
-                <button class="btn btn-primary" onclick="goToForm()">🚀 Boshlash</button>
-                <button class="btn btn-secondary" style="margin-top: 15px;" onclick="goToLogin()">⚙️ Admin</button>
+{% if page == 'admin_panel' %}
+<!-- ==================== ADMIN PANEL ==================== -->
+<div class="admin-container">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>🏦 Admin Panel</h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="#" onclick="showSection('attributes')" id="nav-attributes">📋 Atributlar</a></li>
+            <li><a href="#" onclick="showSection('values')" id="nav-values">💎 Qiymatlar</a></li>
+            <li><a href="#" onclick="showSection('rules')" id="nav-rules">⚖️ Qoidalar</a></li>
+        </ul>
+        <button class="logout-btn" onclick="logout()">🚪 Chiqish</button>
+    </div>
+
+    <div class="main-content">
+        <div id="section-attributes" class="section" style="display: none;">
+            <div class="content-header">
+                <h1>📋 Atributlar Boshqaruvi</h1>
+                <p>Sistema atributlarini boshqaring</p>
+            </div>
+            <div class="content-body">
+                <button class="btn btn-primary" onclick="openCreateAttributeModal()">➕ Yangi Atribut</button>
+                <div id="attributesTable"></div>
             </div>
         </div>
 
-        <!-- FORM PAGE -->
-        <div id="formPage" class="card">
-            <h2 style="text-align: center; color: #667eea; margin-bottom: 30px;">📋 Ariza Ma'lumotlari</h2>
-
-            <div class="info-box">
-                📌 Barcha ma'lumotlarni to'g'ri kiritib bering.
+        <div id="section-values" class="section" style="display: none;">
+            <div class="content-header">
+                <h1>💎 Qiymatlar Boshqaruvi</h1>
+                <p>Atribut qiymatlarini boshqaring</p>
             </div>
-
-            <form id="mainForm" onsubmit="handleSubmit(event)">
-                <div class="form-grid" id="formGrid"></div>
-
-                <div class="answer-box" id="answerBox" style="display: none;">
-                    <h4>✅ Kiritilgan ma'lumotlar</h4>
-                    <div id="answersList"></div>
-                </div>
-
-                <button type="submit" class="btn btn-primary">🔍 Natijani Bilish</button>
-            </form>
-
-            <button class="btn btn-secondary" style="width: 100%; margin-top: 15px;" onclick="goToWelcome()">⬅ Ortga</button>
-        </div>
-
-        <!-- CHAIN FORM PAGE -->
-        <div id="chainFormPage" class="card">
-            <h2 style="text-align: center; color: #667eea; margin-bottom: 30px;">🔗 Qo'shimcha Ma'lumotlar</h2>
-
-            <div class="chain-info">
-                ⚠️ Arizangiz qo'shimcha tekshiruvni talab qiladi. Iltimos, quyidagi ma'lumotlarni to'ldiring.
-            </div>
-
-            <form id="chainForm" onsubmit="handleChainSubmit(event)">
-                <div class="form-grid" id="chainFormGrid"></div>
-
-                <div class="answer-box">
-                    <h4>✅ Avvalgi ma'lumotlar</h4>
-                    <div id="previousAnswers"></div>
-                </div>
-
-                <button type="submit" class="btn btn-warning">🔍 Yakuniy Natijani Bilish</button>
-            </form>
-
-            <button class="btn btn-secondary" style="width: 100%; margin-top: 15px;" onclick="goToWelcome()">⬅ Bosh Sahifa</button>
-        </div>
-
-        <!-- RESULT PAGE -->
-        <div id="resultPage" class="card">
-            <h2 style="text-align: center; color: #667eea; margin-bottom: 30px;">🎯 Natija</h2>
-            <div id="resultBox"></div>
-
-            <div style="display: flex; gap: 15px; margin-top: 30px;">
-                <button class="btn btn-primary" style="flex: 1;" onclick="goToForm()">🔄 Qayta Ariza</button>
-                <button class="btn btn-secondary" style="flex: 1;" onclick="goToWelcome()">🏠 Bosh Sahifa</button>
+            <div class="content-body">
+                <button class="btn btn-primary" onclick="openCreateValueModal()">➕ Yangi Qiymat</button>
+                <div id="valuesTable"></div>
             </div>
         </div>
 
-        <!-- LOGIN PAGE -->
-        <div id="loginPage" class="card">
-            <div style="max-width: 400px; margin: 0 auto;">
-                <h2 style="text-align: center; color: #667eea; margin-bottom: 30px;">🔐 Admin Kirish</h2>
-                <form onsubmit="handleLogin(event)">
-                    <div class="form-group">
-                        <label>Username</label>
-                        <input type="text" id="username" required>
-                    </div>
-                    <div class="form-group" style="margin-bottom: 25px;">
-                        <label>Parol</label>
-                        <input type="password" id="password" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Kirish</button>
-                </form>
-                <button class="btn btn-secondary" style="width: 100%; margin-top: 15px;" onclick="goToWelcome()">⬅ Ortga</button>
+        <div id="section-rules" class="section" style="display: none;">
+            <div class="content-header">
+                <h1>⚖️ Qoidalar Boshqaruvi</h1>
+                <p>Qaror daraxtining qoidalarini boshqaring</p>
+            </div>
+            <div class="content-body">
+                <button class="btn btn-primary" onclick="openCreateRuleModal()">➕ Yangi Qoida</button>
+                <div id="rulesTable"></div>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        const attributes = [
-            {id: 1, nomi: "Daromad", type: "number", placeholder: "Masalan: 15000"},
-            {id: 2, nomi: "Yosh", type: "number", placeholder: "Masalan: 30"},
-            {id: 3, nomi: "Kredit tarixchasi", type: "select", options: ["Yaxshi", "O'rtacha", "Yomon"]},
-            {id: 4, nomi: "Qarzlar", type: "number", placeholder: "Masalan: 5000"},
-            {id: 5, nomi: "Kredit miqdori", type: "number", placeholder: "Masalan: 25000"},
-            {id: 6, nomi: "Garov", type: "select", options: ["Bor", "Yo'q"]},
-            {id: 7, nomi: "Ish staji", type: "number", placeholder: "Masalan: 5"}
-        ];
+<!-- MODALS -->
+<div id="attributeModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="attributeModalTitle">Yangi Atribut</h2>
+        </div>
+        <form id="attributeForm">
+            <input type="hidden" id="attributeId">
+            <div class="form-group">
+                <label>Atribut nomi</label>
+                <input type="text" id="attributeNomi" required placeholder="Masalan: Daromad">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('attributeModal')">Bekor qilish</button>
+                <button type="submit" class="btn btn-success">Saqlash</button>
+            </div>
+        </form>
+    </div>
+</div>
 
-        let userAnswers = {};
+<div id="valueModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="valueModalTitle">Yangi Qiymat</h2>
+        </div>
+        <form id="valueForm">
+            <input type="hidden" id="valueId">
+            <div class="form-group">
+                <label>Atribut</label>
+                <select id="valueAttribute" required></select>
+            </div>
+            <div class="form-group">
+                <label>Qiymat</label>
+                <input type="text" id="valueQiymat" required placeholder="Masalan: >10000">
+            </div>
+            <div class="form-group">
+                <label>Key (Noyob raqam)</label>
+                <input type="number" id="valueKey" required placeholder="Masalan: 1">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('valueModal')">Bekor qilish</button>
+                <button type="submit" class="btn btn-success">Saqlash</button>
+            </div>
+        </form>
+    </div>
+</div>
 
-        function showPage(pageId) {
-            document.querySelectorAll('.card').forEach(card => card.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
+<div id="ruleModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="ruleModalTitle">Yangi Qoida</h2>
+        </div>
+        <form id="ruleForm">
+            <input type="hidden" id="ruleId">
+            <div class="form-group">
+                <label>Shartlar</label>
+                <div id="conditionsList"></div>
+                <button type="button" class="btn btn-primary" style="margin-top: 10px;" onclick="addCondition()">➕ Shart qo'shish</button>
+            </div>
+            <div class="form-group">
+                <label>Natija (Key)</label>
+                <input type="number" id="ruleNatija" required placeholder="Masalan: 28">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('ruleModal')">Bekor qilish</button>
+                <button type="submit" class="btn btn-success">Saqlash</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="{% static 'js/admin.js' %}"></script>
+<script>
+    let allAttributes = [];
+    let allValues = [];
+    let conditions = [];
+
+    function showSection(section) {
+        document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+        document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+        document.getElementById(`section-${section}`).style.display = 'block';
+        document.getElementById(`nav-${section}`).classList.add('active');
+        if (section === 'attributes') loadAttributes();
+        if (section === 'values') loadValues();
+        if (section === 'rules') loadRules();
+    }
+
+    async function loadAttributes() {
+        document.getElementById('attributesTable').innerHTML = '<div class="spinner"></div>';
+        const response = await fetch('/api/attributes/');
+        const data = await response.json();
+        allAttributes = data.attributes;
+        if (allAttributes.length === 0) {
+            document.getElementById('attributesTable').innerHTML = '<div class="empty-state"><div>📋</div><p>Hozircha atributlar yo\'q</p></div>';
+            return;
         }
+        let html = '<table class="data-table"><thead><tr><th>ID</th><th>Nomi</th><th>Qiymatlar</th><th>Amallar</th></tr></thead><tbody>';
+        allAttributes.forEach(attr => {
+            html += `<tr><td>${attr.id}</td><td><strong>${attr.nomi}</strong></td><td>${attr.qiymatlar_soni} ta</td>
+            <td class="action-buttons">
+                <button class="btn btn-warning" onclick="editAttribute(${attr.id})">✏️ Tahrirlash</button>
+                <button class="btn btn-danger" onclick="deleteAttribute(${attr.id})">🗑️ O'chirish</button>
+            </td></tr>`;
+        });
+        html += '</tbody></table>';
+        document.getElementById('attributesTable').innerHTML = html;
+    }
 
-        function goToWelcome() {
-            showPage('welcomePage');
-            userAnswers = {};
+    function openCreateAttributeModal() {
+        document.getElementById('attributeModalTitle').textContent = 'Yangi Atribut';
+        document.getElementById('attributeForm').reset();
+        document.getElementById('attributeId').value = '';
+        document.getElementById('attributeModal').classList.add('active');
+    }
+
+    function editAttribute(id) {
+        const attr = allAttributes.find(a => a.id === id);
+        document.getElementById('attributeModalTitle').textContent = 'Atributni Tahrirlash';
+        document.getElementById('attributeId').value = attr.id;
+        document.getElementById('attributeNomi').value = attr.nomi;
+        document.getElementById('attributeModal').classList.add('active');
+    }
+
+    async function deleteAttribute(id) {
+        if (!confirm('Rostdan ham o\'chirmoqchimisiz?')) return;
+        await fetch(`/api/attributes/${id}/delete/`, { method: 'DELETE' });
+        loadAttributes();
+    }
+
+    document.getElementById('attributeForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('attributeId').value;
+        const nomi = document.getElementById('attributeNomi').value;
+        const url = id ? `/api/attributes/${id}/update/` : '/api/attributes/create/';
+        await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nomi })
+        });
+        closeModal('attributeModal');
+        loadAttributes();
+    };
+
+    async function loadValues() {
+        document.getElementById('valuesTable').innerHTML = '<div class="spinner"></div>';
+        const response = await fetch('/api/values/');
+        const data = await response.json();
+        allValues = data.values;
+        if (allValues.length === 0) {
+            document.getElementById('valuesTable').innerHTML = '<div class="empty-state"><div>💎</div><p>Hozircha qiymatlar yo\'q</p></div>';
+            return;
         }
+        let html = '<table class="data-table"><thead><tr><th>ID</th><th>Atribut</th><th>Qiymat</th><th>Key</th><th>Amallar</th></tr></thead><tbody>';
+        allValues.forEach(val => {
+            html += `<tr><td>${val.id}</td><td>${val.attribute_nomi}</td><td><strong>${val.qiymat}</strong></td>
+            <td><span style="background: #667eea; color: white; padding: 4px 12px; border-radius: 12px;">${val.key}</span></td>
+            <td class="action-buttons">
+                <button class="btn btn-warning" onclick="editValue(${val.id})">✏️ Tahrirlash</button>
+                <button class="btn btn-danger" onclick="deleteValue(${val.id})">🗑️ O'chirish</button>
+            </td></tr>`;
+        });
+        html += '</tbody></table>';
+        document.getElementById('valuesTable').innerHTML = html;
+    }
 
-        function goToLogin() {
-            showPage('loginPage');
+    async function openCreateValueModal() {
+        await loadAttributeOptions();
+        document.getElementById('valueModalTitle').textContent = 'Yangi Qiymat';
+        document.getElementById('valueForm').reset();
+        document.getElementById('valueId').value = '';
+        document.getElementById('valueModal').classList.add('active');
+    }
+
+    async function editValue(id) {
+        await loadAttributeOptions();
+        const val = allValues.find(v => v.id === id);
+        document.getElementById('valueModalTitle').textContent = 'Qiymatni Tahrirlash';
+        document.getElementById('valueId').value = val.id;
+        document.getElementById('valueAttribute').value = val.attribute_id;
+        document.getElementById('valueQiymat').value = val.qiymat;
+        document.getElementById('valueKey').value = val.key;
+        document.getElementById('valueModal').classList.add('active');
+    }
+
+    async function deleteValue(id) {
+        if (!confirm('Rostdan ham o\'chirmoqchimisiz?')) return;
+        await fetch(`/api/values/${id}/delete/`, { method: 'DELETE' });
+        loadValues();
+    }
+
+    async function loadAttributeOptions() {
+        const response = await fetch('/api/attributes/');
+        const data = await response.json();
+        const select = document.getElementById('valueAttribute');
+        select.innerHTML = '<option value="">-- Atributni tanlang --</option>';
+        data.attributes.forEach(attr => {
+            select.innerHTML += `<option value="${attr.id}">${attr.nomi}</option>`;
+        });
+    }
+
+    document.getElementById('valueForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('valueId').value;
+        const attribute_id = document.getElementById('valueAttribute').value;
+        const qiymat = document.getElementById('valueQiymat').value;
+        const key = document.getElementById('valueKey').value;
+        const url = id ? `/api/values/${id}/update/` : '/api/values/create/';
+        await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ attribute_id, qiymat, key })
+        });
+        closeModal('valueModal');
+        loadValues();
+    };
+
+    async function loadRules() {
+        document.getElementById('rulesTable').innerHTML = '<div class="spinner"></div>';
+        const response = await fetch('/api/rules/');
+        const data = await response.json();
+        if (data.rules.length === 0) {
+            document.getElementById('rulesTable').innerHTML = '<div class="empty-state"><div>⚖️</div><p>Hozircha qoidalar yo\'q</p></div>';
+            return;
         }
+        let html = '<table class="data-table"><thead><tr><th>ID</th><th>Shartlar</th><th>Natija</th><th>Amallar</th></tr></thead><tbody>';
+        data.rules.forEach(rule => {
+            html += `<tr><td>${rule.id}</td><td><code>${JSON.stringify(rule.shartlar)}</code></td>
+            <td><span style="background: #28a745; color: white; padding: 4px 12px; border-radius: 12px;">${rule.natija}</span></td>
+            <td class="action-buttons">
+                <button class="btn btn-warning" onclick="editRule(${rule.id})">✏️ Tahrirlash</button>
+                <button class="btn btn-danger" onclick="deleteRule(${rule.id})">🗑️ O'chirish</button>
+            </td></tr>`;
+        });
+        html += '</tbody></table>';
+        document.getElementById('rulesTable').innerHTML = html;
+    }
 
-        function goToForm() {
-            userAnswers = {};
-            showPage('formPage');
-            initializeForm();
+    async function openCreateRuleModal() {
+        document.getElementById('ruleModalTitle').textContent = 'Yangi Qoida';
+        document.getElementById('ruleForm').reset();
+        document.getElementById('ruleId').value = '';
+        conditions = [];
+        renderConditions();
+        document.getElementById('ruleModal').classList.add('active');
+    }
+
+    async function editRule(id) {
+        const response = await fetch('/api/rules/');
+        const data = await response.json();
+        const rule = data.rules.find(r => r.id === id);
+        document.getElementById('ruleModalTitle').textContent = 'Qoidani Tahrirlash';
+        document.getElementById('ruleId').value = rule.id;
+        document.getElementById('ruleNatija').value = rule.natija;
+        conditions = rule.shartlar;
+        renderConditions();
+        document.getElementById('ruleModal').classList.add('active');
+    }
+
+    async function deleteRule(id) {
+        if (!confirm('Rostdan ham o\'chirmoqchimisiz?')) return;
+        await fetch(`/api/rules/${id}/delete/`, { method: 'DELETE' });
+        loadRules();
+    }
+
+    function addCondition() {
+        conditions.push({ atribut: 0, qiymat: 1 });
+        renderConditions();
+    }
+
+    function removeCondition(index) {
+        conditions.splice(index, 1);
+        renderConditions();
+    }
+
+    function renderConditions() {
+        const list = document.getElementById('conditionsList');
+        if (conditions.length === 0) {
+            list.innerHTML = '<p style="color: #999;">Shartlar qo\'shilmagan</p>';
+            return;
         }
+        list.innerHTML = '';
+        conditions.forEach((cond, i) => {
+            list.innerHTML += `
+                <div class="condition-item">
+                    <div class="condition-controls">
+                        <div class="form-group" style="margin: 0;">
+                            <label>Atribut (index)</label>
+                            <input type="number" value="${cond.atribut}" onchange="conditions[${i}].atribut = parseInt(this.value)">
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label>Qiymat (key)</label>
+                            <input type="number" value="${cond.qiymat}" onchange="conditions[${i}].qiymat = parseInt(this.value)">
+                        </div>
+                        <button type="button" class="btn btn-danger" onclick="removeCondition(${i})">🗑️</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
 
-        function initializeForm() {
-            const formGrid = document.getElementById('formGrid');
-            formGrid.innerHTML = '';
+    document.getElementById('ruleForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('ruleId').value;
+        const natija = parseInt(document.getElementById('ruleNatija').value);
+        if (conditions.length === 0) {
+            alert('Kamida bitta shart qo\'shing!');
+            return;
+        }
+        const url = id ? `/api/rules/${id}/update/` : '/api/rules/create/';
+        await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ shartlar: conditions, natija })
+        });
+        closeModal('ruleModal');
+        loadRules();
+    };
 
-            attributes.forEach(attr => {
-                let html = `<div class="form-group">
-                    <label>${attr.nomi}</label>`;
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('active');
+    }
 
+    function logout() {
+        window.location.href = '/logout/';
+    }
+
+    showSection('attributes');
+</script>
+
+{% elif page == 'admin_login' %}
+<!-- ==================== ADMIN LOGIN ==================== -->
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h1>🔐 Admin Kirish</h1>
+            <p>Tizimga kirish uchun login va parolni kiriting</p>
+        </div>
+
+        {% if error %}
+        <div class="error-message">
+            ❌ {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'decision:admin_login' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" required autofocus>
+            </div>
+            <div class="form-group">
+                <label>Parol</label>
+                <input type="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Kirish</button>
+        </form>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="/" style="color: #667eea; text-decoration: none; font-weight: bold;">⬅ Bosh sahifaga qaytish</a>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<!-- ==================== USER INTERFACE ==================== -->
+<div class="user-container">
+    <div class="header">
+        <h1>🏦 Kredit Qaror Tizimi</h1>
+        <p>Qarorlar daraxtiga asoslangan tahlil</p>
+    </div>
+
+    <div id="welcomePage" class="card active">
+        <div class="welcome-box">
+            <h2>Xush kelibsiz! 👋</h2>
+            <p>Kredit arizasi ma'lumotlarini to'ldiring va avtomatik ravishda natija oling.</p>
+            <button class="btn btn-primary" onclick="goToForm()">🚀 Boshlash</button>
+            <button class="btn btn-secondary" style="margin-top: 15px;" onclick="goToLogin()">⚙️ Admin</button>
+        </div>
+    </div>
+
+    <div id="formPage" class="card">
+        <h2 style="text-align: center; color: #667eea; margin-bottom: 30px;">📋 Ariza Ma'lumotlari</h2>
+        <div class="info-box">
+            📌 Barcha ma'lumotlarni to'g'ri kiritib bering.
+        </div>
+        <form id="mainForm" onsubmit="handleSubmit(event)">
+            <div class="form-grid" id="formGrid"></div>
+            <div class="answer-box" id="answerBox" style="display: none;">
+                <h4>✅ Kiritilgan ma'lumotlar</h4>
+                <div id="answersList"></div>
+            </div>
+            <button type="submit" class="btn btn-primary">🔍 Natijani Bilish</button>
+        </form>
+        <button class="btn btn-secondary" style="width: 100%; margin-top: 15px;" onclick="goToWelcome()">⬅ Ortga</button>
+    </div>
+
+    <div id="chainFormPage" class="card">
+        <h2 style="text-align: center; color: #667eea; margin-bottom: 30px;">🔗 Qo'shimcha Ma'lumotlar</h2>
+        <div class="chain-info">
+            ⚠️ Arizangiz qo'shimcha tekshiruvni talab qiladi. Iltimos, quyidagi ma'lumotlarni to'ldiring.
+        </div>
+        <form id="chainForm" onsubmit="handleChainSubmit(event)">
+            <div class="form-grid" id="chainFormGrid"></div>
+            <div class="answer-box">
+                <h4>✅ Avvalgi ma'lumotlar</h4>
+                <div id="previousAnswers"></div>
+            </div>
+            <button type="submit" class="btn btn-warning">🔍 Yakuniy Natijani Bilish</button>
+        </form>
+        <button class="btn btn-secondary" style="width: 100%; margin-top: 15px;" onclick="goToWelcome()">⬅ Bosh Sahifa</button>
+    </div>
+
+    <div id="resultPage" class="card">
+        <h2 style="text-align: center; color: #667eea; margin-bottom: 30px;">🎯 Natija</h2>
+        <div id="resultBox"></div>
+        <div style="display: flex; gap: 15px; margin-top: 30px;">
+            <button class="btn btn-primary" style="flex: 1;" onclick="goToForm()">🔄 Qayta Ariza</button>
+            <button class="btn btn-secondary" style="flex: 1;" onclick="goToWelcome()">🏠 Bosh Sahifa</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const attributes = [
+        {id: 1, nomi: "Daromad", type: "number", placeholder: "Masalan: 15000"},
+        {id: 2, nomi: "Yosh", type: "number", placeholder: "Masalan: 30"},
+        {id: 3, nomi: "Kredit tarixchasi", type: "select", options: ["Yaxshi", "O'rtacha", "Yomon"]},
+        {id: 4, nomi: "Qarzlar", type: "number", placeholder: "Masalan: 5000"},
+        {id: 5, nomi: "Kredit miqdori", type: "number", placeholder: "Masalan: 25000"},
+        {id: 6, nomi: "Garov", type: "select", options: ["Bor", "Yo'q"]},
+        {id: 7, nomi: "Ish staji", type: "number", placeholder: "Masalan: 5"}
+    ];
+
+    let userAnswers = {};
+
+    function showPage(pageId) {
+        document.querySelectorAll('.card').forEach(card => card.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+    }
+
+    function goToWelcome() {
+        showPage('welcomePage');
+        userAnswers = {};
+    }
+
+    function goToLogin() {
+        window.location.href = '/admin-login/';
+    }
+
+    function goToForm() {
+        userAnswers = {};
+        showPage('formPage');
+        initializeForm();
+    }
+
+    function initializeForm() {
+        const formGrid = document.getElementById('formGrid');
+        formGrid.innerHTML = '';
+        attributes.forEach(attr => {
+            let html = `<div class="form-group"><label>${attr.nomi}</label>`;
+            if (attr.type === 'select') {
+                html += `<select id="attr_${attr.id}" onchange="updateAnswers(${attr.id})">
+                    <option value="">-- Tanlang --</option>`;
+                attr.options.forEach(opt => {
+                    html += `<option value="${opt}">${opt}</option>`;
+                });
+                html += '</select>';
+            } else {
+                html += `<input type="number" id="attr_${attr.id}" placeholder="${attr.placeholder}" onchange="updateAnswers(${attr.id})">`;
+            }
+            html += '</div>';
+            formGrid.innerHTML += html;
+        });
+    }
+
+    function updateAnswers(attrId) {
+        const input = document.getElementById(`attr_${attrId}`);
+        const value = input.value;
+        if (value) {
+            userAnswers[attrId] = value;
+        } else {
+            delete userAnswers[attrId];
+        }
+        if (Object.keys(userAnswers).length > 0) {
+            document.getElementById('answerBox').style.display = 'block';
+            updateAnswersList();
+        } else {
+            document.getElementById('answerBox').style.display = 'none';
+        }
+    }
+
+    function updateAnswersList() {
+        const list = document.getElementById('answersList');
+        list.innerHTML = '';
+        Object.entries(userAnswers).forEach(([attrId, value]) => {
+            const attr = attributes.find(a => a.id == attrId);
+            list.innerHTML += `<div class="answer-item">
+                <strong>${attr.nomi}:</strong>
+                <span class="answer-value">${value}</span>
+            </div>`;
+        });
+    }
+
+    async function handleSubmit(event) {
+        event.preventDefault();
+        if (Object.keys(userAnswers).length === 0) {
+            alert('⚠️ Iltimos, hech bo\'lmaganda bir ma\'lumot kiriting!');
+            return;
+        }
+        document.getElementById('resultBox').innerHTML = '<div class="spinner"></div><p>Natija topilmoqda...</p>';
+        showPage('resultPage');
+        try {
+            const response = await fetch('/api/find-rule/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({answers: userAnswers})
+            });
+            const result = await response.json();
+            if (result.chain_required) {
+                showChainForm();
+            } else {
+                showResult(result);
+            }
+        } catch (error) {
+            console.error('Xatolik:', error);
+            showResult({found: false, result: 'Xatolik yuz berdi'});
+        }
+    }
+
+    function showChainForm() {
+        showPage('chainFormPage');
+        const prevList = document.getElementById('previousAnswers');
+        prevList.innerHTML = '';
+        Object.entries(userAnswers).forEach(([attrId, value]) => {
+            const attr = attributes.find(a => a.id == attrId);
+            prevList.innerHTML += `<div class="answer-item">
+                <strong>${attr.nomi}:</strong>
+                <span class="answer-value">${value}</span>
+            </div>`;
+        });
+        const chainGrid = document.getElementById('chainFormGrid');
+        chainGrid.innerHTML = '';
+        attributes.forEach(attr => {
+            if (!userAnswers[attr.id]) {
+                let html = `<div class="form-group"><label>${attr.nomi}</label>`;
                 if (attr.type === 'select') {
-                    html += `<select id="attr_${attr.id}" onchange="updateAnswers(${attr.id})">
+                    html += `<select id="chain_attr_${attr.id}">
                         <option value="">-- Tanlang --</option>`;
                     attr.options.forEach(opt => {
                         html += `<option value="${opt}">${opt}</option>`;
                     });
                     html += '</select>';
                 } else {
-                    html += `<input type="number" id="attr_${attr.id}" placeholder="${attr.placeholder}" onchange="updateAnswers(${attr.id})">`;
+                    html += `<input type="number" id="chain_attr_${attr.id}" placeholder="${attr.placeholder}">`;
                 }
-
                 html += '</div>';
-                formGrid.innerHTML += html;
+                chainGrid.innerHTML += html;
+            }
+        });
+    }
+
+    async function handleChainSubmit(event) {
+        event.preventDefault();
+        attributes.forEach(attr => {
+            const chainInput = document.getElementById(`chain_attr_${attr.id}`);
+            if (chainInput && chainInput.value) {
+                userAnswers[attr.id] = chainInput.value;
+            }
+        });
+        document.getElementById('resultBox').innerHTML = '<div class="spinner"></div><p>Yakuniy natija topilmoqda...</p>';
+        showPage('resultPage');
+        try {
+            const response = await fetch('/api/check-chain/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({answers: userAnswers})
             });
+            const result = await response.json();
+            showResult(result);
+        } catch (error) {
+            console.error('Xatolik:', error);
+            showResult({found: false, result: 'Xatolik yuz berdi'});
         }
+    }
 
-        function updateAnswers(attrId) {
-            const input = document.getElementById(`attr_${attrId}`);
-            const value = input.value;
-
-            if (value) {
-                userAnswers[attrId] = value;
-            } else {
-                delete userAnswers[attrId];
-            }
-
-            if (Object.keys(userAnswers).length > 0) {
-                document.getElementById('answerBox').style.display = 'block';
-                updateAnswersList();
-            } else {
-                document.getElementById('answerBox').style.display = 'none';
-            }
+    function showResult(result) {
+        let className = 'result-warning';
+        let emoji = '⚠️';
+        if (result.result.includes('beriladi') && !result.result.includes('berilmaydi')) {
+            className = 'result-success';
+            emoji = '✅';
+        } else if (result.result.includes('berilmaydi')) {
+            className = 'result-danger';
+            emoji = '❌';
         }
+        document.getElementById('resultBox').innerHTML = `
+            <div class="result-box ${className}">
+                <div style="font-size: 3em; margin-bottom: 20px;">${emoji}</div>
+                <h3 style="margin-bottom: 10px;">NATIJA</h3>
+                <p style="font-size: 1.1em; line-height: 1.6;">${result.result}</p>
+            </div>
+        `;
+    }
 
-        function updateAnswersList() {
-            const list = document.getElementById('answersList');
-            list.innerHTML = '';
-
-            Object.entries(userAnswers).forEach(([attrId, value]) => {
-                const attr = attributes.find(a => a.id == attrId);
-                list.innerHTML += `<div class="answer-item">
-                    <strong>${attr.nomi}:</strong>
-                    <span class="answer-value">${value}</span>
-                </div>`;
-            });
-        }
-
-        async function handleSubmit(event) {
-            event.preventDefault();
-
-            if (Object.keys(userAnswers).length === 0) {
-                alert('⚠️ Iltimos, hech bo\'lmaganda bir ma\'lumot kiriting!');
-                return;
-            }
-
-            document.getElementById('resultBox').innerHTML = '<div class="spinner"></div><p>Natija topilmoqda...</p>';
-            showPage('resultPage');
-
-            try {
-                const response = await fetch('/api/find-rule/', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({answers: userAnswers})
-                });
-
-                const result = await response.json();
-
-                // Agar chain kerak bo'lsa
-                if (result.chain_required) {
-                    showChainForm();
-                } else {
-                    showResult(result);
-                }
-            } catch (error) {
-                console.error('Xatolik:', error);
-                showResult({found: false, result: 'Xatolik yuz berdi'});
-            }
-        }
-
-        function showChainForm() {
-            showPage('chainFormPage');
-
-            // Avvalgi javoblarni ko'rsatish
-            const prevList = document.getElementById('previousAnswers');
-            prevList.innerHTML = '';
-            Object.entries(userAnswers).forEach(([attrId, value]) => {
-                const attr = attributes.find(a => a.id == attrId);
-                prevList.innerHTML += `<div class="answer-item">
-                    <strong>${attr.nomi}:</strong>
-                    <span class="answer-value">${value}</span>
-                </div>`;
-            });
-
-            // Qo'shimcha atributlarni aniqlash (kiritilmaganlar)
-            const chainGrid = document.getElementById('chainFormGrid');
-            chainGrid.innerHTML = '';
-
-            attributes.forEach(attr => {
-                if (!userAnswers[attr.id]) {
-                    let html = `<div class="form-group">
-                        <label>${attr.nomi}</label>`;
-
-                    if (attr.type === 'select') {
-                        html += `<select id="chain_attr_${attr.id}">
-                            <option value="">-- Tanlang --</option>`;
-                        attr.options.forEach(opt => {
-                            html += `<option value="${opt}">${opt}</option>`;
-                        });
-                        html += '</select>';
-                    } else {
-                        html += `<input type="number" id="chain_attr_${attr.id}" placeholder="${attr.placeholder}">`;
-                    }
-
-                    html += '</div>';
-                    chainGrid.innerHTML += html;
-                }
-            });
-        }
-
-        async function handleChainSubmit(event) {
-            event.preventDefault();
-
-            // Qo'shimcha ma'lumotlarni yig'ish
-            attributes.forEach(attr => {
-                const chainInput = document.getElementById(`chain_attr_${attr.id}`);
-                if (chainInput && chainInput.value) {
-                    userAnswers[attr.id] = chainInput.value;
-                }
-            });
-
-            document.getElementById('resultBox').innerHTML = '<div class="spinner"></div><p>Yakuniy natija topilmoqda...</p>';
-            showPage('resultPage');
-
-            try {
-                const response = await fetch('/api/check-chain/', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({answers: userAnswers})
-                });
-
-                const result = await response.json();
-                showResult(result);
-            } catch (error) {
-                console.error('Xatolik:', error);
-                showResult({found: false, result: 'Xatolik yuz berdi'});
-            }
-        }
-
-        function showResult(result) {
-            let className = 'result-warning';
-            let emoji = '⚠️';
-
-            if (result.result.includes('beriladi') && !result.result.includes('berilmaydi')) {
-                className = 'result-success';
-                emoji = '✅';
-            } else if (result.result.includes('berilmaydi')) {
-                className = 'result-danger';
-                emoji = '❌';
-            }
-
-            document.getElementById('resultBox').innerHTML = `
-                <div class="result-box ${className}">
-                    <div style="font-size: 3em; margin-bottom: 20px;">${emoji}</div>
-                    <h3 style="margin-bottom: 10px;">NATIJA</h3>
-                    <p style="font-size: 1.1em; line-height: 1.6;">${result.result}</p>
-                </div>
-            `;
-        }
-
-        function handleLogin(event) {
-            event.preventDefault();
-            window.location.href = '/admin/login/';
-        }
-
-        showPage('welcomePage');
-    </script>
-</body>
-</html>
+    showPage('welcomePage');
+</script>
+{% endif %}
